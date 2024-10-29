@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Notifications</title>
+    <style>
+        #notifications {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Notifications</h1>
+    <button id="connectBtn">Connect to WebSocket</button>
+    <ul id="notifications"></ul>
+
+    <script>
+        let ws;
+
+        document.getElementById('connectBtn').addEventListener('click', () => {
+            // Inicializamos la conexión con el WS Server
+            ws = new WebSocket('ws://localhost:4444');
+
+            // Cuando inicializamos la conexión desactivamos el botón de conexión
+            ws.onopen = () => {
+                console.log('Connected to WebSocket server');
+                document.getElementById('connectBtn').disabled = true;
+            };
+
+            // Al recibir un mensaje lo agregamos como elemento a la lista de notificaciones
+            ws.onmessage = (event) => {
+                const notificationsList = document.getElementById('notifications');
+                const listItem = document.createElement('li');
+                listItem.textContent = event.data;
+                notificationsList.appendChild(listItem);
+            };
+
+            // Manejamos el cierre de conexión
+            ws.onclose = () => {
+                console.log('Disconnected from WebSocket server');
+                document.getElementById('connectBtn').disabled = false;
+            };
+        });
+    </script>
+</body>
+</html>
