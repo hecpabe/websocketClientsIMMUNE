@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #messages { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; }
+        #messageInput { width: 80%; }
+        #usernameInput { width: 70%; }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Chat</h1>
+    <div id="messages"></div>
+    <input type="text" id="usernameInput" placeholder="Enter your username" />
+    <button id="connectButton">Connect</button>
+    <br><br>
+    <input type="text" id="messageInput" placeholder="Enter your message" disabled />
+    <button id="sendButton" disabled>Send</button>
+
+    <script>
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const connectButton = document.getElementById('connectButton');
+        const sendButton = document.getElementById('sendButton');
+        let ws;
+        let username;
+
+        connectButton.addEventListener('click', () => {
+            username = document.getElementById('usernameInput').value;
+            if (username) {
+                ws = new WebSocket('ws://localhost:4444');
+                ws.onopen = () => {
+                    messageInput.disabled = false;
+                    sendButton.disabled = false;
+                };
+                ws.onmessage = (event) => {
+                    const message = JSON.parse(event.data);
+                    const messageElement = document.createElement('div');
+                    messageElement.textContent = `${message.username}: ${message.text}`;
+                    messagesDiv.appendChild(messageElement);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                };
+            }
+        });
+
+        sendButton.addEventListener('click', () => {
+            const messageText = messageInput.value;
+            if (messageText) {
+                const message = { username, text: messageText };
+                ws.send(JSON.stringify(message));
+                messageInput.value = '';
+            }
+        });
+    </script>
+</body>
+</html>
